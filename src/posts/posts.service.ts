@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from 'src/entity/Category';
 import { Repository } from 'typeorm';
-import { Post } from '../entity/Post';
+import { Post } from './entity/Post';
 
 @Injectable()
 export class PostsService {
@@ -11,17 +10,42 @@ export class PostsService {
         private readonly postRepository: Repository<Post>,
     ) { }
 
-    async findAll(): Promise<(Post & Partial<Category>)[]> {
+    async findAll(): Promise<Post[]> {
         // return await this.postRepository.find();
+
+        // @ManyToOne無しの場合
+        // return await this.postRepository
+        //     .createQueryBuilder('post')
+        //     .leftJoinAndMapOne(
+        //         'post.category',
+        //         Category,
+        //         'category',
+        //         'post.categoryId=category.id'
+        //     )
+        //     .where('category.id=:cId', { cId: 200 })
+        //     .getMany();
+
+        // @ManyToOne有りの場合
+        // return await this.postRepository
+        //     .createQueryBuilder('post')
+        //     .leftJoinAndSelect('post.category', 'category')
+        //     .getMany();
+
+        // return await this.postRepository.find({
+        //     join: {
+        //         alias: 'post',
+        //         innerJoinAndSelect: {
+        //             childCategory: 'post.category',
+        //             parentCategory: 'childCategory.parentCategory'
+        //         }
+        //     }
+        // });
+
         return await this.postRepository
             .createQueryBuilder('post')
-            .leftJoinAndMapOne(
-                'post.category',
-                Category,
-                'category',
-                'post.categoryId=category.id'
-            )
-            .where('category.id=:cId', { cId: 200 })
-            .getMany();
+            .innerJoinAndSelect('post.category', 'childCategory')
+            .innerJoinAndSelect('childCategory.parentCategory', 'parentCategory')
+            .getMany()
+
     }
 }
