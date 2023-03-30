@@ -6,7 +6,7 @@ import { Folder } from './entity/Folder';
 export class ApplyFolderController {
     constructor(private readonly applyFolderService: ApplyFolderService) { }
     @Get()
-    findAll(): Promise<Folder[]> {
-        return this.applyFolderService.findAll();
+    findAll(): Promise<Folder> {
+        return this.applyFolderService.findAll2();
     }
 }
